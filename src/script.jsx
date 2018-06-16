@@ -5,11 +5,7 @@ import soundFile from './bell.mp3';
 import './styles/styles.scss';
 
 const root = document.querySelector('.root');
-function play() {
-  const bellSound = document.querySelector('#bellSound');
-  // console.log('from:play; called');
-  bellSound.play();
-}
+
 function secondsToExpression(s) {
   let minutes;
   let seconds;
@@ -35,61 +31,52 @@ class PomodoroController extends React.Component {
       breakTime: 5,
       isSession: true,
       secondsLeft: 0,
-      interval: 0,
-      isIntervalRunning: false,
     };
+    this.interval = 0;
+    this.setBeepSound = this.setBeepSound.bind(this);
     this.startStopButtonHandler = this.startStopButtonHandler.bind(this);
     this.timeChangeHandler = this.timeChangeHandler.bind(this);
-    this.timeUpdater = this.timeUpdater.bind(this);
     this.resetButtonHandler = this.resetButtonHandler.bind(this);
   }
   componentWillMount() {
-    const secondsLeft = this.state.sessionTime * 60;
+    const { sessionTime, breakTime, isSession } = this.state;
+    const secondsLeft = (isSession ? sessionTime : breakTime) * 60;
     this.setState({
       secondsLeft,
     });
   }
-  timeUpdater(t) {
-    const isS = this.state.isSession;
-    // const secL = this.state.secondsLeft;
-    let seconds = t;
-    // console.log(`from:timeUpdater t${t} isSession${isS} secondsLeft${secL}`);
-    this.setState({
-      isIntervalRunning: true,
-      interval: setInterval(() => {
-        seconds -= 1;
-        // console.log(`from:timeUpdater,intervalfunctionj;seconds${seconds}`);
-        this.setState({
-          secondsLeft: seconds,
-        });
-        if (seconds === 0) {
-          play();
-          clearInterval(this.state.interval);
-          this.setState({ isSession: !isS, isIntervalRunning: false });
-          this.startStopButtonHandler();
-        }
-      }, 1000),
-    });
+  setBeepSound(e) {
+    this.beepSound = e;
   }
-
   startStopButtonHandler() {
-    const { secondsLeft, isIntervalRunning, isSession } = this.state;
+    const { secondsLeft, isSession } = this.state;
     const sT = this.state.sessionTime * 60;
     const bT = this.state.breakTime * 60;
-    const t = isSession ? sT : bT;
-    // console.log(`from:startStopButtonHandler t${t} secondsLeft${secondsLeft}`);
-    if (isIntervalRunning) {
-      clearInterval(this.state.interval);
-      this.setState({
-        isIntervalRunning: false,
-        secondsLeft,
-      });
-    } else if (!isIntervalRunning) {
-      if (secondsLeft !== 0) {
-        this.timeUpdater(secondsLeft);
-      } else if (secondsLeft === 0) {
-        this.timeUpdater(t);
-      }
+    let t = secondsLeft;
+    if (secondsLeft === sT || secondsLeft === bT || secondsLeft === 0) {
+      t = isSession ? sT : bT;
+    }
+    this.setState({
+      secondsLeft: t,
+    });
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    } else if (!this.interval) {
+      this.interval = setInterval(() => {
+        this.setState(prevState => ({ secondsLeft: prevState.secondsLeft - 1 }));
+        if (this.state.secondsLeft === 0) {
+          this.beepSound.play();
+          clearInterval(this.interval);
+          this.interval = null;
+          setTimeout(() => {
+            this.setState(prevState => ({
+              isSession: !prevState.isSession,
+            }));
+            this.startStopButtonHandler();
+          }, 1000);
+        }
+      }, 1000);
     }
   }
   timeChangeHandler(e) {
@@ -119,17 +106,15 @@ class PomodoroController extends React.Component {
     }
   }
   resetButtonHandler() {
-    const { interval, isIntervalRunning } = this.state;
+    // stop();
+    this.beepSound.pause();
+    this.beepSound.currentTime = 0;
     const breakTime = 5;
     const sessionTime = 25;
     const secondsLeft = 25 * 60;
     const isSession = true;
-    if (isIntervalRunning) {
-      clearInterval(interval);
-      this.setState({
-        isIntervalRunning: false,
-      });
-    }
+    clearInterval(this.interval);
+    this.interval = null;
     this.setState({
       breakTime,
       sessionTime,
@@ -146,10 +131,11 @@ class PomodoroController extends React.Component {
         startStopButtonHandler={this.startStopButtonHandler}
         resetButtonHandler={this.resetButtonHandler}
         timeChangeHandler={this.timeChangeHandler}
+        setBeepSound={this.setBeepSound}
+        secondsLeft={secondsLeft}
         sessionTime={sessionTime}
         breakTime={breakTime}
         isSession={isSession}
-        secondsLeft={secondsLeft}
       />
     );
   }
@@ -160,7 +146,9 @@ function Pomodoro(props) {
     <div id="container-div" style={{ background: 'skyblue', textAlign: 'center' }}>
       <div id="setter-div">
         <div className="break-controls">
-          <h4 id="break-label">Break Length: {props.breakTime}</h4>
+          <h4 id="break-label">
+            Break Length: <span id="break-length">{props.breakTime}</span>
+          </h4>
           <button id="break-decrement" onClick={props.timeChangeHandler}>
             Down
           </button>
@@ -170,7 +158,9 @@ function Pomodoro(props) {
         </div>
 
         <div className="session-controls">
-          <h4 id="session-label">Session Length: {props.sessionTime}</h4>
+          <h4 id="session-label">
+            Session Length: <span id="session-length">{props.sessionTime}</span>
+          </h4>
           <button id="session-decrement" onClick={props.timeChangeHandler}>
             Down
           </button>
@@ -191,7 +181,7 @@ function Pomodoro(props) {
           RESET
         </button>
       </div>
-      <audio src={soundFile} type="audio/mpeg" id="bellSound">
+      <audio src={soundFile} type="audio/mpeg" id="beep" preload="auto" ref={props.setBeepSound}>
         <track src={soundFile} kind="captions" />
       </audio>
     </div>
@@ -201,6 +191,7 @@ function Pomodoro(props) {
 ReactDOM.render(<PomodoroController />, root);
 
 Pomodoro.propTypes = {
+  setBeepSound: PropTypes.func.isRequired,
   startStopButtonHandler: PropTypes.func.isRequired,
   timeChangeHandler: PropTypes.func.isRequired,
   resetButtonHandler: PropTypes.func.isRequired,
