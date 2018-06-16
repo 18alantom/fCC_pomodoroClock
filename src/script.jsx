@@ -1,8 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import soundFile from './bell.mp3';
 import './styles/styles.scss';
 
+const root = document.querySelector('.root');
+function play() {
+  const bellSound = document.querySelector('#bellSound');
+  // console.log('from:play; called');
+  bellSound.play();
+}
 function secondsToExpression(s) {
   let minutes;
   let seconds;
@@ -42,7 +49,6 @@ class PomodoroController extends React.Component {
       secondsLeft,
     });
   }
-
   timeUpdater(t) {
     const isS = this.state.isSession;
     // const secL = this.state.secondsLeft;
@@ -57,6 +63,7 @@ class PomodoroController extends React.Component {
           secondsLeft: seconds,
         });
         if (seconds === 0) {
+          play();
           clearInterval(this.state.interval);
           this.setState({ isSession: !isS, isIntervalRunning: false });
           this.startStopButtonHandler();
@@ -184,11 +191,14 @@ function Pomodoro(props) {
           RESET
         </button>
       </div>
+      <audio src={soundFile} type="audio/mpeg" id="bellSound">
+        <track src={soundFile} kind="captions" />
+      </audio>
     </div>
   );
 }
 
-ReactDOM.render(<PomodoroController />, document.querySelector('.root'));
+ReactDOM.render(<PomodoroController />, root);
 
 Pomodoro.propTypes = {
   startStopButtonHandler: PropTypes.func.isRequired,
