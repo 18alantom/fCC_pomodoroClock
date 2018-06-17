@@ -1,0 +1,185 @@
+$translate-m50p: translate(-50%, -50%);
+$bs-vlight:0 1px 3px rgba(0, 0, 0, 0.12),
+0 1px 2px rgba(0, 0, 0, 0.24);
+$bs-light: 0 3px 6px rgba(0, 0, 0, 0.16),
+0 3px 6px rgba(0, 0, 0, 0.23);
+$bs-medium:0 10px 20px rgba(0, 0, 0, 0.19),
+0 6px 6px rgba(0, 0, 0, 0.23);
+$title-font: 'Lobster',
+serif;
+$timeLeft-font: Arial;
+$timeSet-font: 'Roboto',
+sans-serif;
+$isSession-font: 'Roboto',
+sans-serif;
+$span-font: Helvetica,
+sans-serif;
+$transition-anim: all 0.3s cubic-bezier(.25, .8, .25, 1);
+$text-color: #37474f;
+$text-color-session: #263238;
+$text-color-rest: #455a64;
+html,
+body {
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.root {
+  position: absolute;
+  background: rgba(173, 216, 230, 0.726);
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+  color: $text-color;
+}
+
+#container-div {
+  width: 30%;
+  min-width: 350px;
+  height: 30%;
+  min-height: 350px;
+  border-radius: 2px;
+  position: absolute;
+  margin: 0px;
+  top: 50%;
+  left: 50%;
+  transform: $translate-m50p;
+  box-shadow: $bs-vlight;
+  background: skyblue;
+  transition: $transition-anim;
+  h1 {
+    font-family: $title-font;
+    text-align: center;
+    color: rgba(28, 128, 168, 0.747);
+    font-size: 1.25rem;
+    transition: $transition-anim;
+  }
+}
+
+#container-div:hover {
+  h1 {
+    color: rgb(28, 128, 168);
+  }
+}
+
+button {
+  font-size: 20px;
+  margin: 0px;
+  padding: 0px;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+i {
+  padding: 4px;
+  color: $text-color;
+  transition: $transition-anim;
+  cursor: pointer;
+}
+
+i:hover {
+  color: #5f7b88;
+}
+
+#inner-container-div {
+  margin: 0px;
+  padding: 0px;
+  display: grid;
+  height: 86%;
+  grid-template-rows: 4fr 1fr 1fr;
+}
+
+#time-div {
+  text-align: center;
+  #time-left {
+    transition: $transition-anim;
+    font-size: 5rem;
+    font-family: $timeLeft-font;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: $translate-m50p;
+  }
+  #timer-label {
+    text-transform: uppercase;
+    font-family: $isSession-font;
+    position: absolute;
+    font-weight: 400;
+    top: 60%;
+    left: 50%;
+    transform: $translate-m50p;
+  }
+}
+
+#controls-div {
+  text-align: center;
+  align-self: center;
+  i {
+    font-size: 0.95rem;
+  }
+}
+
+#setter-div {
+  font-family: $timeSet-font;
+  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 8px;
+  align-items: center;
+  transition: $transition-anim;
+  .controls {
+    p {
+      text-align: center;
+      float: left;
+      position: relative;
+      top: 0;
+      left: 28px;
+      width: 50%;
+      font-weight: 300;
+    }
+    span {
+      float: right;
+      font-family: $span-font;
+      font-weight: 500;
+      margin-left: 0px;
+    }
+    i {
+      font-size: 1.0rem;
+      position: relative;
+      top: 11px;
+      padding: 2px;
+    }
+  }
+}
+
+.timerSessionContainer {
+  box-shadow: $bs-medium !important;
+}
+
+.timerRestContainer {
+  box-shadow: $bs-light !important;
+}
+
+.timerSessionTimer {
+  color: $text-color-session !important;
+}
+
+.timerRestTimer {
+  color: $text-color-rest !important;
+}
+
+.timerSessionTitle {
+  color: rgb(216, 48, 48) !important;
+}
+
+.timerRestTitle {
+  color: $text-color-rest !important;
+}
+
+.timerControls {
+  opacity: 0;
+}
